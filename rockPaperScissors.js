@@ -4,60 +4,186 @@ function getComputerChoice() {
     return choices[Math.floor(Math.random() * 3)];
 }
 
-function getHumanChoice() {
-    let choice = (prompt("Enter your choice: ")).toLowerCase();
 
-    return choice;
-}
-
-function playRound() {
+function playRound(humanChoice) {
     const validChoices = ["rock", "paper", "scissors"];
-    let humanChoice = getHumanChoice();
     let computerChoice = getComputerChoice();
 
     if (!validChoices.includes(humanChoice)) {
-        console.log("Invalid choice! Please enter rock, paper, or scissors.");
+        updateGameMessage("Invalid choice! Please enter rock, paper, or scissors.");
         return "invalid";
     }
 
+    updateChoicesDisplay(humanChoice, computerChoice);
+
     if (humanChoice === computerChoice) {
-        console.log(`Tie! Both chose ${humanChoice}.`);
+        updateRoundResult(`Tie! Both chose ${humanChoice}.`);
         return "tie";
     } else if ((humanChoice === "rock" && computerChoice === "scissors") ||
         (humanChoice === "scissors" && computerChoice === "paper") ||
         (humanChoice === "paper" && computerChoice === "rock")) {
-        console.log(`You win! ${humanChoice} beats ${computerChoice}.`);
+        updateRoundResult(`You win! ${humanChoice} beats ${computerChoice}.`);
         return "human";
     } else {
-        console.log(`You lose! ${computerChoice} beats ${humanChoice}.`);
+        updateRoundResult(`You lose! ${computerChoice} beats ${humanChoice}.`);
         return "computer";
     }
 }
 
-function playGame()  {
-    let humanScore = 0;
-    let computerScore = 0;
+//game state variables
+let totalRounds = 5;
+let currentRound = 0;
+let humanScore = 0;
+let computerScore = 0;
+let gameActive = false;
 
-    let rounds = parseInt(prompt("Enter the number of rounds: "));
+function startNewGame() {
+    currentRound = 0;
+    humanScore = 0;
+    computerScore = 0;
+    gameActive = true;
+    updateGameMessage(`Starting new game with ${totalRounds} rounds!`);
+    updateScore();
+    updateRoundCounter();
+    clearRoundResult();
+    clearFinalResult();
+}
 
-    for (let i = 0; i < rounds; i++) {
-        let result = playRound();
-        if (result === "human") {
-            humanScore++;
-        } else if (result === "computer") {
-            computerScore++;
-        } else if (result === "invalid") {
-            i--;
-        }
+
+
+function playGameRound(humanChoice)  {
+    if (!gameActive) {
+        updateGameMessage("Please set the number of rounds first!");
+        return;
     }
 
-    if (humanScore === computerScore) {
-        console.log("It is a tie");
-    } else if (humanScore > computerScore) {
-        console.log("You win!");
-    } else {
-        console.log("You lose!");
+    if (currentRound >= totalRounds) {
+        updateGameMessage("Game is over! Set new rounds to play again.");
+        return;
+    }
+
+    let result = playRound(humanChoice);
+
+    if (result === "human") {
+        humanScore++;
+    } else if (result === "computer") {
+        computerScore++;
+    }
+
+    currentRound++;
+    updateScore();
+    updateRoundCounter();
+
+    if (currentRound >= totalRounds) {
+        endGame();
     }
 }
 
-playGame();
+function endGame() {
+    gameActive = false;
+    let finalMessage = "";
+    if (humanScore === computerScore) {
+        finalMessage = "It's a tie!"
+    } else if (humanScore > computerScore) {
+        finalMessage = "You win the game!"
+    } else {
+        finalMessage = "Computer wins the game!";
+    }
+    updateFinalResult(finalMessage);
+    updateGameMessage("Game Over! Set new rounds to play again.");
+}
+
+//UI Update Functions
+
+function updateChoicesDisplay(humanChoice, computerChoice) {
+    const choicesDisplay = document.querySelector("#choicesDisplay");
+    if (choicesDisplay) {
+        choicesDisplay.innerHTML = `
+            <div>You chose: <strong>${humanChoice}</strong></div>
+            <div>Computer chose: <strong>${computerChoice}</strong><div>
+        `;
+    }
+}
+
+function updateGameMessage(message) {
+    const gameMessage = document.querySelector("#gameMessage");
+    if (gameMessage) {
+        gameMessage.textContent = message;
+    }
+}
+
+function updateRoundResult(message) {
+    const roundResult = document.querySelector("#roundResult");
+    if (roundResult) {
+        roundResult.textContent = message;
+    }
+}
+
+function updateScore() {
+    const scoreDisplay = document.querySelector("#score");
+    if (scoreDisplay) {
+        scoreDisplay.textContent = `You: ${humanScore} - Computer: ${computerScore}`;
+    }
+}
+
+function updateRoundCounter() {
+    const roundCounter = document.querySelector("#roundCounter");
+    if (roundCounter) {
+        roundCounter.textContent = `Round: ${currentRound}/${totalRounds}`;
+    }
+}
+
+function updateFinalResult(message) {
+    const finalResult = document.querySelector("#finalResult");
+    if (finalResult) {
+        finalResult.textContent = message;
+        finalResult.style.display = "block";
+    }
+}
+
+function clearRoundResult() {
+    const roundResult = document.querySelector("#roundResult");
+    if (roundResult) {
+        roundResult.textContent = "";
+    }
+}
+
+function clearFinalResult() {
+    const finalResult = document.querySelector("#finalResult");
+    if (finalResult) {
+        finalResult.textContent = "";
+        finalResult.style.display = "none";
+    }
+}
+
+const rock = document.querySelector("#rock");
+const paper = document.querySelector("#paper");
+const scissors = document.querySelector("#scissors");
+
+const input = document.querySelector("#rounds");
+const btn = document.querySelector("#roundsBtn");
+
+function storeValue() {
+    const rounds = parseInt(input.value);
+    if (input.value === "" || isNaN(rounds) || rounds <= 0) {
+        alert("Enter a valid amount of rounds!");
+        return;
+    }
+    totalRounds = rounds;
+    input.value = "";
+    startNewGame();
+}
+
+btn.addEventListener("click", storeValue);
+input.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        storeValue();
+    }
+})
+
+
+
+rock.addEventListener("click", () => playGameRound("rock"));
+paper.addEventListener("click", () => playGameRound("paper"));
+scissors.addEventListener("click", () => playGameRound("scissors"));
+
