@@ -16,16 +16,24 @@ function playRound(humanChoice) {
 
     updateChoicesDisplay(humanChoice, computerChoice);
 
-    if (humanChoice === computerChoice) {
+    if (humanChoice === computerChoice && humanChoice != "scissors") {
         updateRoundResult(`Tie! Both chose ${humanChoice}.`);
+        clearEasterEgg();
         return "tie";
+    } else if (humanChoice === computerChoice && humanChoice === "scissors") {
+        updateRoundResult(`Tie! Both chose ${humanChoice}.`);
+        updateEasterEgg();
+        return "tie";
+        
     } else if ((humanChoice === "rock" && computerChoice === "scissors") ||
         (humanChoice === "scissors" && computerChoice === "paper") ||
         (humanChoice === "paper" && computerChoice === "rock")) {
         updateRoundResult(`You win! ${humanChoice} beats ${computerChoice}.`);
+        clearEasterEgg();
         return "human";
     } else {
         updateRoundResult(`You lose! ${computerChoice} beats ${humanChoice}.`);
+        clearEasterEgg();
         return "computer";
     }
 }
@@ -45,6 +53,7 @@ function startNewGame() {
     updateGameMessage(`Starting new game with ${totalRounds} rounds!`);
     updateScore();
     updateRoundCounter();
+    clearEasterEgg();
     clearRoundResult();
     clearFinalResult();
 }
@@ -95,6 +104,15 @@ function endGame() {
 
 //UI Update Functions
 
+function updateEasterEgg() {
+    const easterEgg = document.querySelector("#easterEgg");
+    if (easterEgg) {
+        easterEgg.innerHTML = `
+            <div>legs locked, grinding in perfect symmetry</div>
+        `;
+    }
+}
+
 function updateChoicesDisplay(humanChoice, computerChoice) {
     const choicesDisplay = document.querySelector("#choicesDisplay");
     if (choicesDisplay) {
@@ -138,6 +156,13 @@ function updateFinalResult(message) {
     if (finalResult) {
         finalResult.textContent = message;
         finalResult.style.display = "block";
+    }
+}
+
+function clearEasterEgg() {
+    const easterEgg = document.querySelector("#easterEgg");
+    if (easterEgg) {
+        easterEgg.textContent = "";
     }
 }
 
