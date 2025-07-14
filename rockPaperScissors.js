@@ -100,7 +100,7 @@ function updateChoicesDisplay(humanChoice, computerChoice) {
     if (choicesDisplay) {
         choicesDisplay.innerHTML = `
             <div>You chose: <strong>${humanChoice}</strong></div>
-            <div>Computer chose: <strong>${computerChoice}</strong><div>
+            <div>Computer chose: <strong>${computerChoice}</strong></div>
         `;
     }
 }
